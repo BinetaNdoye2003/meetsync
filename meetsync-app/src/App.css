@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Palette Premium */
+  --v: #6366f1; /* Indigo Royal */
+  --v-light: rgba(99, 102, 241, 0.08);
+  --t: #14b8a6; /* Teal */
+  --ink: #0f172a; /* Bleu Nuit Profond */
+  --ink3: #64748b; /* Gris Ardoise */
+  --bg: #f8fafc;
+  --border: #e2e8f0;
+  --card: #ffffff;
+  
+  /* Ombres douces */
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 10px 25px -5px rgba(99, 102, 241, 0.1);
+  --shadow-hover: 0 15px 35px -5px rgba(99, 102, 241, 0.15);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(20, 184, 166, 0.03) 0px, transparent 50%);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* Scrollbar élégante */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }

@@ -1,0 +1,60 @@
+
+
+services:
+
+  # ─────────────────────────────────────────
+  # SERVICE 1 : Laravel (PHP-FPM)
+  # ─────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: laravel_app
+    volumes:
+       - ./meetsync-api:/var/www
+    depends_on:
+      - db
+
+  # ─────────────────────────────────────────
+  # SERVICE 2 : Nginx (serveur web)
+  # ─────────────────────────────────────────
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8000:80"
+    volumes:
+      - ./meetsync-api:/var/www 
+      - ./docker/nginx:/etc/nginx/conf.d
+    depends_on:
+      - app
+
+  # ─────────────────────────────────────────
+  # SERVICE 3 : MySQL
+  # ─────────────────────────────────────────
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+
+  # ─────────────────────────────────────────
+  # SERVICE 4 : React (frontend)
+  # ─────────────────────────────────────────
+  frontend:
+    image: node:20 
+    working_dir: /app
+    volumes:
+      - ./meetsync-app:/app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm run dev"
+
+# Volume persistant pour MySQL
+volumes:
+  db_data: {}
+

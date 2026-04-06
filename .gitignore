@@ -1,0 +1,6 @@
+# Docker
+.DS_Store
+*.log
+
+# Variables d'environnement
+.env
