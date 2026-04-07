@@ -1,5 +1,5 @@
 # Image de base PHP 8.2 avec PHP-FPM
-FROM php:8.4-fpm
+FROM php:8.3-fpm
 
 # Installer les dépendances système nécessaires pour Laravel
 RUN apt-get update && apt-get install -y \
