@@ -7,12 +7,18 @@ export default function RemindersPage() {
   const [loading, setLoading] = useState(true);
   const [simMsg, setSimMsg] = useState('');
 
-  const load = () => {
-    meetingService.getUpcoming().then(({ data }) => {
-      setUpcoming([...data.organized, ...data.invited]);
-      setLoading(false);
-    });
-  };
+const load = () => {
+  meetingService.getAll().then(({ data }) => {
+    const now = new Date();
+    const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const all = [...data.organized, ...data.invited];
+    setUpcoming(all.filter(m => {
+      const d = new Date(m.start_at);
+      return d > now && d < in24h;
+    }));
+    setLoading(false);
+  });
+};
 
   useEffect(() => { load(); }, []);
 

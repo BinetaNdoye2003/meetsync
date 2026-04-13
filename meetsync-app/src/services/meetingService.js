@@ -6,5 +6,5 @@ export const meetingService = {
   getOne:      (id) => api.get(`/meetings/${id}`),
   remove:      (id) => api.delete(`/meetings/${id}`),
   getUsers:    () => api.get('/users'),
-  getUpcoming: () => api.get('/meetings/upcoming'),
+
 };

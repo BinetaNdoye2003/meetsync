@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { meetingService } from '../services/meetingService';
+import useAuthStore from '../store/authStore';
 
 export default function CreateMeetingPage() {
   const navigate = useNavigate();
@@ -11,41 +12,50 @@ export default function CreateMeetingPage() {
   const [startTime, setStartTime] = useState('');
   const [duration, setDuration] = useState(60);
   const [location, setLocation] = useState('');
-  const [reminder, setReminder] = useState(15);
+  const [reminder] = useState(15);
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState('');
+  const [success] = useState('');
 
-  useEffect(() => {
-    meetingService.getUsers().then(({ data }) => setUsers(data));
-  }, []);
+ const { user } = useAuthStore();
+
+useEffect(() => {
+  meetingService.getUsers().then(({ data }) => {
+    setUsers(data.filter(u => u.id !== user?.id));
+  });
+}, [user]);
 
   const toggleUser = (id) => {
     setSelectedUsers(prev => prev.includes(id) ? prev.filter(u => u !== id) : [...prev, id]);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors({});
-    setLoading(true);
-    try {
-      await meetingService.create({
-        title, description, start_at: `${startDate} ${startTime}:00`,
-        duration_minutes: Number(duration), location,
-        reminder_minutes: Number(reminder), participant_ids: selectedUsers,
-      });
-      setSuccess('Réunion planifiée avec succès !');
-      setTimeout(() => navigate('/dashboard'), 1500);
-    } catch (err) {
-      if (err.response?.status === 422) {
-        setErrors(err.response.data.errors || { general: err.response.data.message });
-      }
-    } finally {
-      setLoading(false);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setErrors({});
+  setLoading(true);
+  try {
+    await meetingService.create({
+      title,
+      description,
+      start_at:         `${startDate} ${startTime}:00`,
+      duration_minutes: Number(duration),
+      location,
+      reminder_minutes: Number(reminder),
+      participant_ids:  selectedUsers,
+    });
+    // Redirection immédiate sans setTimeout
+    navigate('/dashboard');
+  } catch (err) {
+    if (err.response?.status === 422) {
+      const data = err.response.data;
+      setErrors(data.errors || { general: data.message });
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const inputStyle = {
     width: '100%', padding: '14px 18px', border: '1.5px solid var(--border)',

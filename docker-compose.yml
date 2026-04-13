@@ -1,6 +1,10 @@
-
-
 services:
+
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 
   # ─────────────────────────────────────────
   # SERVICE 1 : Laravel (PHP-FPM)
@@ -11,13 +15,11 @@ services:
       dockerfile: docker/php/Dockerfile
     container_name: laravel_app
     volumes:
-       - ./meetsync-api:/var/www
+      - ./meetsync-api:/var/www
     depends_on:
       - db
+      - mailpit   
 
-  # ─────────────────────────────────────────
-  # SERVICE 2 : Nginx (serveur web)
-  # ─────────────────────────────────────────
   nginx:
     image: nginx:latest
     ports:
@@ -28,9 +30,6 @@ services:
     depends_on:
       - app
 
-  # ─────────────────────────────────────────
-  # SERVICE 3 : MySQL
-  # ─────────────────────────────────────────
   db:
     image: mysql:8
     environment:
@@ -42,19 +41,15 @@ services:
       - db_data:/var/lib/mysql
     restart: always
 
-  # ─────────────────────────────────────────
-  # SERVICE 4 : React (frontend)
-  # ─────────────────────────────────────────
   frontend:
     image: node:20 
     working_dir: /app
     volumes:
       - ./meetsync-app:/app
+      - /app/node_modules
     ports:
       - "3000:3000"
     command: sh -c "npm install && npm run dev"
 
-# Volume persistant pour MySQL
 volumes:
   db_data: {}
-

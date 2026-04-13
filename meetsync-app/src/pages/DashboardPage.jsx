@@ -15,22 +15,31 @@ export default function DashboardPage() {
 
   useEffect(() => { loadMeetings(); }, []);
 
-  const loadMeetings = async () => {
-    try {
-      const [mRes, uRes] = await Promise.all([
-        meetingService.getAll(),
-        meetingService.getUpcoming(),
-      ]);
-      setOrganized(mRes.data.organized);
-      setInvited(mRes.data.invited);
-      setUpcoming([...uRes.data.organized, ...uRes.data.invited]);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+ const loadMeetings = async () => {
+  try {
+    // Un seul appel au lieu de deux
+    const { data } = await meetingService.getAll();
+    setOrganized(data.organized);
+    setInvited(data.invited);
+    // Filtre les upcoming localement sans appel API
+    const now = new Date();
+    const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const allMeetings = [
+  ...data.organized,
+  ...data.invited.filter(inv => 
+    !data.organized.some(org => org.id === inv.id)
+  )
+];
+    setUpcoming(allMeetings.filter(m => {
+      const d = new Date(m.start_at);
+      return d > now && d < in24h;
+    }));
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setLoading(false);
+  }
+};
   const handleDelete = async (e, id) => {
     e.stopPropagation();
     if (!confirm('Supprimer cette réunion ?')) return;
@@ -95,12 +104,7 @@ export default function DashboardPage() {
       {upcoming.length > 0 && (
         <div style={{ marginBottom: 20 }}>
           {upcoming.map(m => (
-            <div key={m.id} style={{
-              display: 'flex', alignItems: 'center', gap: 12,
-              background: 'rgba(255,184,48,.07)',
-              border: '1px solid rgba(255,184,48,.22)',
-              borderRadius: 12, padding: '12px 16px', marginBottom: 8,
-            }}>
+           <div key={`upcoming-${m.id}`}>
               <div style={{ width: 8, height: 8, borderRadius: '50%',
                             background: '#ffb830', flexShrink: 0 }}></div>
               <div style={{ flex: 1 }}>
